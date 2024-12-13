@@ -1,7 +1,22 @@
-import type { Component } from 'solid-js';
+import { Component, createEffect, createSignal, For } from 'solid-js';
 import RssCard from './components/RssCard';
 
+interface RssItem {
+  readonly title: string;
+  readonly description: string;
+  readonly link: string;
+  readonly date: string;
+}
+
 const App: Component = () => {
+  const [rss, setRss] = createSignal<RssItem[]>([]);
+
+  createEffect(() => {
+    fetch(`${import.meta.env.VITE_API_HOST}/rss`)
+      .then((res) => res.json())
+      .then((data) => setRss(data));
+  });
+
   return (
     <div class="mx-auto mt-16 max-w-screen-sm px-4 md:max-w-screen-lg">
       <h1 class="font-GmarketSans text-4xl font-bold leading-tight">
@@ -18,7 +33,7 @@ const App: Component = () => {
       <div class="my-4 h-0.5 w-full border-b border-gray-300"></div>
 
       <div class="space-y-4 p-2">
-        <RssCard title="ACME" description="FOO.BAR" link="https://acme.com" />
+        <For each={rss()}>{(item) => <RssCard {...item} />}</For>
       </div>
     </div>
   );
